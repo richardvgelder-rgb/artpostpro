@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtPostPro — Social Media Automation for Fine Art Galleries</title>
+<meta name="description" content="Stop manually posting. ArtPostPro automates your gallery's social media so you can focus on what matters — selling art.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0F0E0C;
+    --ink-soft: #3A3830;
+    --ink-muted: #8A8880;
+    --gold: #B8965A;
+    --gold-light: #D4AF7A;
+    --cream: #FAF8F4;
+    --cream-dark: #F0EDE6;
+    --white: #FFFFFF;
+    --border: rgba(15,14,12,0.1);
+    --border-gold: rgba(184,150,90,0.3);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 3rem;
+    background: rgba(250,248,244,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--gold); }
+
+  .nav-cta {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white) !important;
+    background: var(--ink);
+    padding: 10px 22px;
+    border-radius: 2px;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--gold) !important; color: var(--white) !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 80px;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 4rem 6rem 6rem;
+    animation: fadeUp 0.9s ease both;
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+
+  .hero-eyebrow-line {
+    width: 32px;
+    height: 0.5px;
+    background: var(--gold);
+  }
+
+  .hero-eyebrow span {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 1.75rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--ink-soft);
+    max-width: 440px;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .hero-form {
+    display: flex;
+    gap: 0;
+    max-width: 420px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s both;
+  }
+
+  .hero-form input {
+    flex: 1;
+    height: 50px;
+    padding: 0 18px;
+    border: 1px solid var(--border);
+    border-right: none;
+    border-radius: 2px 0 0 2px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .hero-form input:focus { border-color: var(--gold); }
+  .hero-form input::placeholder { color: var(--ink-muted); }
+
+  .hero-form button {
+    height: 50px;
+    padding: 0 24px;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: 0 2px 2px 0;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .hero-form button:hover { background: var(--gold); }
+
+  .hero-note {
+    margin-top: 1rem;
+    font-size: 12px;
+    color: var(--ink-muted);
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.5s both;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 0.5px solid var(--border);
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s both;
+  }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--ink);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-top: 4px;
+    display: block;
+  }
+
+  .hero-right {
+    position: relative;
+    background: var(--ink);
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeIn 1.2s ease 0.3s both;
+  }
+
+  .hero-right-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem;
+  }
+
+  .mockup-card {
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .mockup-card:last-child { margin-bottom: 0; }
+
+  .mockup-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .mockup-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .mockup-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .mockup-platform {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    margin-left: auto;
+  }
+
+  .mockup-img-placeholder {
+    width: 100%;
+    height: 120px;
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mockup-img-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(184,150,90,0.15) 0%, transparent 60%);
+  }
+
+  .mockup-artwork-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(255,255,255,0.3);
+    z-index: 1;
+  }
+
+  .mockup-caption {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+
+  .mockup-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .mockup-tag {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(184,150,90,0.2);
+    color: rgba(184,150,90,0.9);
+    letter-spacing: 0.04em;
+  }
+
+  .mockup-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.75rem;
+  }
+
+  .mockup-status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4CAF7D;
+  }
+
+  .mockup-status-text {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .hero-right-label {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    font-style: italic;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.06em;
+  }
+
+  /* SECTION SHARED */
+  section { padding: 8rem 6rem; }
+
+  .section-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-eyebrow-line {
+    width: 24px;
+    height: 0.5px;
+    background: var(--gold);
+  }
+
+  .section-eyebrow span {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+  }
+
+  .section-title em { font-style: italic; color: var(--gold); }
+
+  .section-sub {
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    max-width: 540px;
+  }
+
+  /* PROBLEM */
+  .problem {
+    background: var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .problem .section-title { color: var(--cream); }
+  .problem .section-sub { color: rgba(250,248,244,0.55); }
+  .problem .section-eyebrow span { color: var(--gold-light); }
+  .problem .section-eyebrow-line { background: var(--gold-light); }
+
+  .problem-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .problem-item {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    transition: border-color 0.3s;
+  }
+
+  .problem-item:hover { border-color: rgba(184,150,90,0.3); }
+
+  .problem-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.75rem;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+    flex-shrink: 0;
+    min-width: 32px;
+  }
+
+  .problem-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(250,248,244,0.9);
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  .problem-text p {
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(250,248,244,0.45);
+    line-height: 1.6;
+  }
+
+  /* FEATURES */
+  .features { background: var(--cream); }
+
+  .features-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: end;
+    margin-bottom: 5rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .feature-card {
+    background: var(--white);
+    padding: 2.5rem 2rem;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+
+  .feature-card:hover::before { transform: scaleX(1); }
+  .feature-card:hover { background: var(--cream-dark); }
+
+  .feature-icon {
+    width: 40px; height: 40px;
+    margin-bottom: 1.5rem;
+    color: var(--gold);
+  }
+
+  .feature-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .feature-desc {
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+
+  /* PRICING */
+  .pricing { background: var(--cream-dark); }
+
+  .pricing-header { text-align: center; margin-bottom: 4rem; }
+  .pricing-header .section-sub { margin: 0 auto; text-align: center; }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .pricing-card {
+    background: var(--white);
+    padding: 3rem 2.5rem;
+    position: relative;
+  }
+
+  .pricing-card.featured {
+    background: var(--ink);
+  }
+
+  .pricing-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--gold);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+  }
+
+  .pricing-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 1rem;
+  }
+
+  .pricing-card.featured .pricing-name { color: rgba(250,248,244,0.45); }
+
+  .pricing-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .pricing-card.featured .pricing-price { color: var(--cream); }
+
+  .pricing-period {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-bottom: 2rem;
+  }
+
+  .pricing-card.featured .pricing-period { color: rgba(250,248,244,0.35); }
+
+  .pricing-divider {
+    height: 0.5px;
+    background: var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .pricing-card.featured .pricing-divider { background: rgba(255,255,255,0.1); }
+
+  .pricing-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .pricing-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .pricing-card.featured .pricing-feature { color: rgba(250,248,244,0.6); }
+
+  .pricing-check {
+    width: 14px; height: 14px;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .pricing-btn {
+    display: block;
+    width: 100%;
+    height: 46px;
+    border-radius: 2px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 46px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    background: transparent;
+  }
+
+  .pricing-btn:hover { background: var(--ink); color: var(--white); }
+
+  .pricing-card.featured .pricing-btn {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--white);
+  }
+
+  .pricing-card.featured .pricing-btn:hover {
+    background: var(--gold-light);
+    border-color: var(--gold-light);
+  }
+
+  /* TESTIMONIAL */
+  .testimonial {
+    background: var(--white);
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .testimonial-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 5rem;
+    font-weight: 300;
+    color: var(--cream-dark);
+    line-height: 1;
+    user-select: none;
+  }
+
+  .testimonial-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: 2rem;
+  }
+
+  .testimonial-attr {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .testimonial-line {
+    width: 24px;
+    height: 0.5px;
+    background: var(--gold);
+  }
+
+  .testimonial-name {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  /* CTA */
+  .cta-section {
+    background: var(--ink);
+    text-align: center;
+    padding: 8rem 6rem;
+  }
+
+  .cta-section .section-title { color: var(--cream); margin-bottom: 1rem; }
+  .cta-section .section-sub { color: rgba(250,248,244,0.5); margin: 0 auto 3rem; text-align: center; }
+
+  .cta-form {
+    display: flex;
+    gap: 0;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .cta-form input {
+    flex: 1;
+    height: 52px;
+    padding: 0 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-right: none;
+    border-radius: 2px 0 0 2px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 14px;
+    color: var(--white);
+    background: rgba(255,255,255,0.06);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .cta-form input:focus { border-color: var(--gold); }
+  .cta-form input::placeholder { color: rgba(255,255,255,0.25); }
+
+  .cta-form button {
+    height: 52px;
+    padding: 0 28px;
+    background: var(--gold);
+    color: var(--white);
+    border: none;
+    border-radius: 0 2px 2px 0;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .cta-form button:hover { background: var(--gold-light); }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    border-top: 0.5px solid rgba(255,255,255,0.08);
+    padding: 3rem 6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: rgba(250,248,244,0.6);
+  }
+
+  .footer-logo span { color: var(--gold); }
+
+  .footer-copy {
+    font-size: 12px;
+    color: rgba(250,248,244,0.25);
+    letter-spacing: 0.04em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .footer-links a {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(250,248,244,0.3);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--gold); }
+
+  /* SUCCESS STATE */
+  .success-msg {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 1rem;
+    font-size: 13px;
+    color: var(--gold);
+  }
+
+  .success-msg.show { display: flex; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 1.25rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-left { padding: 5rem 1.5rem 3rem; }
+    .hero-right { min-height: 400px; }
+    section { padding: 5rem 1.5rem; }
+    .problem { grid-template-columns: 1fr; gap: 3rem; }
+    .features-header { grid-template-columns: 1fr; gap: 2rem; }
+    .features-grid { grid-template-columns: 1fr; gap: 2px; }
+    .pricing-grid { grid-template-columns: 1fr; gap: 2px; max-width: 400px; }
+    .testimonial { grid-template-columns: 1fr; gap: 1rem; }
+    .testimonial-label { display: none; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .hero-stats { gap: 2rem; }
+    .cta-form { flex-direction: column; }
+    .cta-form input { border-right: 1px solid rgba(255,255,255,0.15); border-bottom: none; border-radius: 2px 2px 0 0; }
+    .cta-form button { border-radius: 0 0 2px 2px; }
+    .hero-form { flex-direction: column; }
+    .hero-form input { border-right: 1px solid var(--border); border-bottom: none; border-radius: 2px 2px 0 0; }
+    .hero-form button { border-radius: 0 0 2px 2px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Art<span>Post</span>Pro</a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#waitlist" class="nav-cta">Join Waitlist</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-line"></div>
+      <span>Social Media Automation for Fine Art Galleries</span>
+    </div>
+    <h1 class="hero-title">
+      Stop posting.<br>
+      Start <em>selling.</em>
+    </h1>
+    <p class="hero-sub">
+      ArtPostPro automates your gallery's social media — branded artwork images, scheduled posts, and performance analytics — so your team can focus on what actually matters.
+    </p>
+    <form class="hero-form" onsubmit="submitWaitlist(event, 'hero')">
+      <input type="email" placeholder="Your gallery email address" id="hero-email" required>
+      <button type="submit">Join Waitlist</button>
+    </form>
+    <p class="hero-note">Free during beta · No credit card required</p>
+    <div class="success-msg" id="hero-success">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#B8965A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      You're on the list. We'll be in touch soon.
+    </div>
+    <div class="hero-stats">
+      <div>
+        <span class="stat-num">3 hrs</span>
+        <span class="stat-label">Saved per week</span>
+      </div>
+      <div>
+        <span class="stat-num">4×</span>
+        <span class="stat-label">More consistent posting</span>
+      </div>
+      <div>
+        <span class="stat-num">$99</span>
+        <span class="stat-label">Per month</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-right-inner">
+      <div class="mockup-card">
+        <div class="mockup-header">
+          <div class="mockup-dot" style="background:#4CAF7D"></div>
+          <span class="mockup-label">Scheduled post</span>
+          <span class="mockup-platform">Instagram · Facebook</span>
+        </div>
+        <div class="mockup-img-placeholder">
+          <span class="mockup-artwork-label">Untitled No. 7 — Oil on canvas</span>
+        </div>
+        <p class="mockup-caption">"A luminous exploration of light and shadow. Available now at Bill Mack Gallery, Las Vegas. Inquire within."</p>
+        <div class="mockup-tags">
+          <span class="mockup-tag">#fineart</span>
+          <span class="mockup-tag">#contemporaryart</span>
+          <span class="mockup-tag">#artgallery</span>
+        </div>
+        <div class="mockup-status">
+          <div class="mockup-status-dot"></div>
+          <span class="mockup-status-text">Posting today at 10:00 AM · Auto-branded</span>
+        </div>
+      </div>
+      <div class="mockup-card">
+        <div class="mockup-header">
+          <div class="mockup-dot" style="background:#B8965A"></div>
+          <span class="mockup-label">Queue · 8 posts ready</span>
+          <span class="mockup-platform">This week</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:2px;">
+            <div style="width:28px;height:28px;background:rgba(184,150,90,0.2);border-radius:2px;flex-shrink:0;"></div>
+            <span style="font-size:11px;color:rgba(255,255,255,0.45);flex:1;">Bronze Relief Series — Tue 9AM</span>
+            <div style="width:6px;height:6px;border-radius:50%;background:#4CAF7D;flex-shrink:0;"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:2px;">
+            <div style="width:28px;height:28px;background:rgba(184,150,90,0.15);border-radius:2px;flex-shrink:0;"></div>
+            <span style="font-size:11px;color:rgba(255,255,255,0.45);flex:1;">Opening Night Recap — Wed 6PM</span>
+            <div style="width:6px;height:6px;border-radius:50%;background:#4CAF7D;flex-shrink:0;"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:2px;">
+            <div style="width:28px;height:28px;background:rgba(184,150,90,0.1);border-radius:2px;flex-shrink:0;"></div>
+            <span style="font-size:11px;color:rgba(255,255,255,0.35);flex:1;">New Arrivals — Fri 11AM</span>
+            <div style="width:6px;height:6px;border-radius:50%;background:#888780;flex-shrink:0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="hero-right-label">Live dashboard preview</span>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="reveal">
+    <div class="section-eyebrow">
+      <div class="section-eyebrow-line"></div>
+      <span>The problem</span>
+    </div>
+    <h2 class="section-title">Your gallery deserves better than<br><em>manual everything.</em></h2>
+    <p class="section-sub">Gallery directors and marketing teams waste hours every week on social media tasks that should take minutes. That time belongs on the floor — with collectors.</p>
+  </div>
+  <ul class="problem-list reveal">
+    <li class="problem-item">
+      <span class="problem-num">01</span>
+      <div class="problem-text">
+        <strong>Artwork branding is tedious</strong>
+        <p>Resizing images, adding logos, formatting for each platform — done manually every single time.</p>
+      </div>
+    </li>
+    <li class="problem-item">
+      <span class="problem-num">02</span>
+      <div class="problem-text">
+        <strong>Posting is inconsistent</strong>
+        <p>When you're busy with openings or collectors, social media falls silent for weeks at a time.</p>
+      </div>
+    </li>
+    <li class="problem-item">
+      <span class="problem-num">03</span>
+      <div class="problem-text">
+        <strong>Captions take too long</strong>
+        <p>Writing fresh, engaging copy for every artwork post is a creative drain that never ends.</p>
+      </div>
+    </li>
+    <li class="problem-item">
+      <span class="problem-num">04</span>
+      <div class="problem-text">
+        <strong>No visibility into what works</strong>
+        <p>Without analytics, you have no idea which artworks drive engagement or collector inquiries.</p>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-header">
+    <div class="reveal">
+      <div class="section-eyebrow">
+        <div class="section-eyebrow-line"></div>
+        <span>What it does</span>
+      </div>
+      <h2 class="section-title">Everything your gallery needs to<br><em>show up consistently.</em></h2>
+    </div>
+    <p class="section-sub reveal" style="align-self:end;">Built specifically for fine art galleries. Not a generic social media tool retrofitted for art — a purpose-built platform that understands how galleries work.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <svg class="feature-icon" viewBox="0 0 40 40" fill="none">
+        <rect x="4" y="4" width="32" height="32" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M4 28l8-8 6 6 6-8 12 10" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="14" cy="14" r="3" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <h3 class="feature-title">Artwork Image Branding</h3>
+      <p class="feature-desc">Upload any artwork image and instantly generate a branded 1080×1080px post with your gallery logo, colors, and artwork details. Download or schedule directly.</p>
+    </div>
+    <div class="feature-card reveal">
+      <svg class="feature-icon" viewBox="0 0 40 40" fill="none">
+        <rect x="4" y="6" width="32" height="28" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M4 14h32" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M13 4v4M27 4v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="10" y="20" width="6" height="6" rx="1" fill="currentColor" opacity="0.4"/>
+        <rect x="24" y="20" width="6" height="6" rx="1" fill="currentColor" opacity="0.4"/>
+      </svg>
+      <h3 class="feature-title">Smart Post Scheduling</h3>
+      <p class="feature-desc">Build a week or month of content in one sitting. Schedule posts to Instagram, Facebook, and more at optimal times without lifting a finger on posting day.</p>
+    </div>
+    <div class="feature-card reveal">
+      <svg class="feature-icon" viewBox="0 0 40 40" fill="none">
+        <path d="M6 32l8-16 6 8 5-6 9 14H6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="30" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M30 8v2M30 14v2M26 12h2M32 12h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <h3 class="feature-title">AI Caption Generator</h3>
+      <p class="feature-desc">Enter the artwork title, artist, and medium — get a polished, gallery-appropriate caption in seconds. Customize the tone to match your brand voice.</p>
+    </div>
+    <div class="feature-card reveal">
+      <svg class="feature-icon" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="14" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M20 10v10l6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <h3 class="feature-title">Multi-Platform Publishing</h3>
+      <p class="feature-desc">One post, every platform. Publish simultaneously to Instagram, Facebook, LinkedIn, and Pinterest — each formatted correctly for the platform.</p>
+    </div>
+    <div class="feature-card reveal">
+      <svg class="feature-icon" viewBox="0 0 40 40" fill="none">
+        <polyline points="6,30 14,18 20,24 27,12 34,20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="14" cy="18" r="2" fill="currentColor"/>
+        <circle cx="27" cy="12" r="2" fill="currentColor"/>
+      </svg>
+      <h3 class="feature-title">Performance Analytics</h3>
+      <p class="feature-desc">See which artworks drive the most engagement, which captions perform best, and when your audience is most active. Make data-driven decisions about what to post next.</p>
+    </div>
+    <div class="feature-card reveal">
+      <svg class="feature-icon" viewBox="0 0 40 40" fill="none">
+        <rect x="8" y="8" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="22" y="8" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="8" y="22" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="22" y="22" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <h3 class="feature-title">Gallery Content Library</h3>
+      <p class="feature-desc">Store every artwork image, branded post, and caption in one place. Build a reusable content library that grows with your collection and never loses an asset.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-header reveal">
+    <div class="section-eyebrow" style="justify-content:center;">
+      <div class="section-eyebrow-line"></div>
+      <span>Pricing</span>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <h2 class="section-title">Simple, honest pricing.<br><em>No surprises.</em></h2>
+    <p class="section-sub">Less than one hour of a freelancer's time. Cancel anytime.</p>
+  </div>
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <p class="pricing-name">Starter</p>
+      <div class="pricing-price">$49</div>
+      <p class="pricing-period">per month</p>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          1 social platform
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          15 scheduled posts/month
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Artwork branding tool
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Basic analytics
+        </li>
+      </ul>
+      <a href="#waitlist" class="pricing-btn">Get started</a>
+    </div>
+
+    <div class="pricing-card featured">
+      <span class="pricing-badge">Most Popular</span>
+      <p class="pricing-name">Pro</p>
+      <div class="pricing-price" style="color:var(--cream);">$99</div>
+      <p class="pricing-period">per month</p>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="#B8965A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          3 social platforms
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="#B8965A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Unlimited scheduled posts
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="#B8965A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          AI caption generator
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="#B8965A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Full analytics dashboard
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="#B8965A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Content library
+        </li>
+      </ul>
+      <a href="#waitlist" class="pricing-btn">Get started</a>
+    </div>
+
+    <div class="pricing-card">
+      <p class="pricing-name">Agency</p>
+      <div class="pricing-price">$199</div>
+      <p class="pricing-period">per month</p>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Up to 5 gallery locations
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          All platforms, unlimited posts
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          White-label option
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Priority support
+        </li>
+        <li class="pricing-feature">
+          <svg class="pricing-check" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Custom onboarding
+        </li>
+      </ul>
+      <a href="#waitlist" class="pricing-btn">Contact us</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="testimonial">
+  <div class="testimonial-label reveal">"</div>
+  <div class="reveal">
+    <blockquote class="testimonial-quote">
+      "We used to spend half a day every week just on social posts. ArtPostPro cut that down to twenty minutes. Our Instagram has never looked more consistent — and our collectors have noticed."
+    </blockquote>
+    <div class="testimonial-attr">
+      <div class="testimonial-line"></div>
+      <span class="testimonial-name">Bill Mack Gallery — Las Vegas & Laguna Beach</span>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="waitlist">
+  <div class="section-eyebrow" style="justify-content:center;" >
+    <div class="section-eyebrow-line" style="background:var(--gold)"></div>
+    <span style="color:var(--gold);font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;">Early access</span>
+    <div class="section-eyebrow-line" style="background:var(--gold)"></div>
+  </div>
+  <h2 class="section-title reveal">Be the first gallery<br><em>to automate.</em></h2>
+  <p class="section-sub reveal">Join the waitlist for early access and locked-in founding member pricing. We're onboarding a small group of galleries first.</p>
+  <form class="cta-form reveal" onsubmit="submitWaitlist(event, 'cta')">
+    <input type="email" placeholder="Your gallery email address" id="cta-email" required>
+    <button type="submit">Join Waitlist</button>
+  </form>
+  <div class="success-msg" id="cta-success" style="justify-content:center;margin-top:1rem;">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#B8965A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    You're on the list. We'll be in touch soon.
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Art<span>Post</span>Pro</span>
+  <ul class="footer-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="mailto:hello@artpostpro.com">Contact</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 ArtPostPro. All rights reserved.</span>
+</footer>
+
+<script>
+  function submitWaitlist(e, source) {
+    e.preventDefault();
+    var email = document.getElementById(source === 'hero' ? 'hero-email' : 'cta-email').value;
+    document.getElementById(source === 'hero' ? 'hero-success' : 'cta-success').classList.add('show');
+    document.querySelector(source === 'hero' ? '.hero-form' : '.cta-form').style.display = 'none';
+    document.querySelector(source === 'hero' ? '.hero-note' : '').style.display = 'none';
+  }
+
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(function(el) { observer.observe(el); });
+</script>
+</body>
+</html>
