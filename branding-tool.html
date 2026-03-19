@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artwork Branding Tool — ArtPostPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0F0E0C;--ink-soft:#3A3830;--ink-muted:#8A8880;
+  --gold:#B8965A;--gold-light:#D4AF7A;
+  --cream:#FAF8F4;--cream-dark:#F0EDE6;
+  --white:#fff;--border:rgba(15,14,12,0.1);
+  --success:#3D8C5E;--danger:#C0392B;
+}
+body{font-family:'Instrument Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(250,248,244,.97);border-bottom:.5px solid var(--border);position:sticky;top:0;z-index:200;backdrop-filter:blur(12px);}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;letter-spacing:.06em;color:var(--ink);text-decoration:none;}
+.logo span{color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.badge{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);background:rgba(184,150,90,.12);border:.5px solid rgba(184,150,90,.3);padding:3px 11px;border-radius:20px;}
+.btn-ghost-sm{height:34px;padding:0 14px;background:transparent;color:var(--ink-soft);border:.5px solid var(--border);border-radius:6px;font-family:'Instrument Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn-ghost-sm:hover{border-color:var(--gold);color:var(--gold);}
+.app{display:grid;grid-template-columns:390px 1fr;min-height:calc(100vh - 56px);}
+.sidebar{background:var(--white);border-right:.5px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
+.tabs{display:flex;border-bottom:.5px solid var(--border);}
+.tab{flex:1;padding:.65rem;text-align:center;font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.tab.on{color:var(--ink);border-bottom-color:var(--gold);}
+.pane{display:none;padding:1.4rem 1.5rem 2rem;flex-direction:column;gap:1.2rem;}
+.pane.on{display:flex;}
+.sec{display:flex;flex-direction:column;gap:.65rem;}
+.sec-lbl{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);padding-bottom:.4rem;border-bottom:.5px solid var(--border);}
+.presets-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.preset-chip{padding:4px 11px;border-radius:20px;border:.5px solid var(--border);background:var(--cream);font-size:11px;font-weight:500;color:var(--ink-soft);cursor:pointer;transition:all .15s;}
+.preset-chip:hover{border-color:var(--gold);color:var(--gold);}
+.preset-chip.on{background:var(--ink);border-color:var(--ink);color:var(--white);}
+.preset-save-btn{padding:4px 11px;border-radius:20px;border:.5px dashed rgba(184,150,90,.4);background:transparent;font-size:11px;font-weight:500;color:var(--gold);cursor:pointer;transition:all .15s;}
+.preset-save-btn:hover{background:rgba(184,150,90,.08);}
+.plat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.plat{padding:8px 4px;border:1px solid var(--border);border-radius:6px;background:var(--cream);cursor:pointer;text-align:center;transition:all .15s;}
+.plat:hover{border-color:var(--gold);}
+.plat.on{border-color:var(--ink);background:var(--ink);}
+.plat.on .pn,.plat.on .ps{color:var(--white);}
+.plat.on .ps{opacity:.5;}
+.pi{font-size:13px;line-height:1.4;}
+.pn{font-size:10px;font-weight:500;color:var(--ink-soft);display:block;margin-top:2px;}
+.ps{font-size:9px;color:var(--ink-muted);display:block;}
+.upz{border:1.5px dashed rgba(184,150,90,.4);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(184,150,90,.03);position:relative;}
+.upz:hover{border-color:var(--gold);background:rgba(184,150,90,.07);}
+.upz.ok{border-style:solid;border-color:var(--success);background:rgba(61,140,94,.04);}
+.upz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upz svg{width:24px;height:24px;margin:0 auto .35rem;color:var(--gold);}
+.ut{font-size:13px;font-weight:500;color:var(--ink-soft);margin-bottom:2px;}
+.us{font-size:11px;color:var(--ink-muted);}
+.uf{font-size:11px;font-weight:500;color:var(--success);margin-top:3px;display:none;}
+.upz.ok .uf{display:block;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fl{font-size:11px;font-weight:500;color:var(--ink-soft);}
+.fi{height:34px;padding:0 10px;border:.5px solid rgba(15,14,12,.15);border-radius:6px;font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none;transition:border-color .2s;width:100%;}
+.fi:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,150,90,.1);}
+.fsel{height:34px;padding:0 10px;border:.5px solid rgba(15,14,12,.15);border-radius:6px;font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none;cursor:pointer;width:100%;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* EXPANDED COLOR PALETTE */
+.color-palette{display:flex;flex-direction:column;gap:6px;}
+.color-row-label{font-size:10px;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;}
+.crow{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.csw{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s,border-color .15s;flex-shrink:0;position:relative;}
+.csw:hover{transform:scale(1.18);}
+.csw.on{border-color:var(--ink);transform:scale(1.18);}
+.csw:hover::after{content:attr(title);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--white);font-size:9px;padding:2px 6px;border-radius:4px;white-space:nowrap;pointer-events:none;z-index:10;}
+.ccu{width:22px;height:22px;border-radius:50%;border:1.5px dashed rgba(15,14,12,.25);cursor:pointer;overflow:hidden;flex-shrink:0;}
+.ccu input{width:200%;height:200%;margin:-50%;cursor:pointer;border:none;padding:0;}
+.sr{display:flex;align-items:center;gap:8px;}
+.sr input[type=range]{flex:1;}
+.sv{font-size:11px;font-weight:500;color:var(--ink-soft);min-width:28px;text-align:right;}
+.posg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.pb{aspect-ratio:1;border:.5px solid rgba(15,14,12,.15);border-radius:4px;background:var(--cream);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.pb:hover{border-color:var(--gold);}
+.pb.on{background:var(--ink);border-color:var(--ink);}
+.pb.on svg{color:var(--white);}
+.pb svg{width:10px;height:10px;color:var(--ink-muted);}
+.tr{display:flex;align-items:center;justify-content:space-between;}
+.tl{font-size:12px;color:var(--ink-soft);}
+.tg{position:relative;width:34px;height:19px;cursor:pointer;}
+.tg input{opacity:0;width:0;height:0;position:absolute;}
+.tt{position:absolute;inset:0;background:#DDD;border-radius:10px;transition:background .2s;}
+.tt::before{content:'';position:absolute;width:13px;height:13px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;}
+.tg input:checked+.tt{background:var(--ink);}
+.tg input:checked+.tt::before{transform:translateX(15px);}
+.btn{width:100%;height:42px;background:var(--ink);color:var(--white);border:none;border-radius:6px;font-family:'Instrument Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn:hover{background:var(--gold);}
+.btn:disabled{background:#CCC;cursor:not-allowed;}
+.btn-outline{width:100%;height:38px;background:transparent;color:var(--ink-soft);border:.5px solid var(--border);border-radius:6px;font-family:'Instrument Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+.export-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.export-row .btn{font-size:11px;}
+
+/* BULK IMAGE ROWS */
+.bulk-img-list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;margin-top:.4rem;}
+.bil{display:flex;align-items:flex-start;gap:10px;padding:8px;background:var(--cream);border-radius:8px;border:.5px solid var(--border);transition:border-color .15s;cursor:pointer;}
+.bil.act{border-color:var(--gold);background:rgba(184,150,90,.05);}
+.bil-thumb{width:52px;height:52px;border-radius:5px;overflow:hidden;flex-shrink:0;background:var(--cream-dark);}
+.bil-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.bil-fields{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;}
+.bil-fi{height:26px;padding:0 7px;border:.5px solid rgba(15,14,12,.12);border-radius:4px;font-family:'Instrument Sans',sans-serif;font-size:11px;color:var(--ink);background:var(--white);outline:none;width:100%;}
+.bil-fi:focus{border-color:var(--gold);}
+.bil-fi::placeholder{color:#CCC;}
+.bil-row2{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.bil-rm{width:20px;height:20px;border-radius:50%;background:transparent;border:.5px solid var(--border);color:var(--ink-muted);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;margin-top:2px;}
+.bil-rm:hover{background:var(--danger);border-color:var(--danger);color:var(--white);}
+.bulk-add-btn{display:flex;align-items:center;justify-content:center;gap:6px;height:38px;border:1.5px dashed rgba(184,150,90,.35);border-radius:8px;background:rgba(184,150,90,.03);color:var(--gold);font-size:12px;font-weight:500;cursor:pointer;position:relative;transition:all .15s;}
+.bulk-add-btn:hover{background:rgba(184,150,90,.07);border-color:var(--gold);}
+.bulk-add-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+
+/* CAPTION */
+.caption-box{background:var(--cream);border:.5px solid var(--border);border-radius:8px;padding:1rem;margin-top:.25rem;}
+.caption-text{font-size:13px;line-height:1.7;color:var(--ink-soft);white-space:pre-wrap;word-break:break-word;min-height:70px;}
+.caption-actions{display:flex;gap:8px;margin-top:.75rem;}
+.cap-btn{flex:1;height:32px;border-radius:6px;font-family:'Instrument Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.cap-copy{background:var(--ink);color:var(--white);border:none;}
+.cap-copy:hover{background:var(--gold);}
+.cap-regen{background:transparent;color:var(--ink-soft);border:.5px solid var(--border);}
+.cap-regen:hover{border-color:var(--gold);color:var(--gold);}
+.cap-loading{display:none;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--ink-muted);padding:.5rem;}
+.spinner{width:16px;height:16px;border:2px solid var(--cream-dark);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.cap-copied{font-size:11px;color:var(--success);display:none;text-align:center;margin-top:.4rem;}
+
+/* BULK CAPTIONS PANEL */
+.bulk-cap-list{display:flex;flex-direction:column;gap:8px;margin-top:.25rem;}
+.bcl-item{border:.5px solid var(--border);border-radius:8px;overflow:hidden;}
+.bcl-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--cream-dark);cursor:pointer;}
+.bcl-title{font-size:12px;font-weight:500;color:var(--ink-soft);}
+.bcl-status{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;}
+.bcl-status.pending{background:rgba(15,14,12,.07);color:var(--ink-muted);}
+.bcl-status.done{background:rgba(61,140,94,.12);color:var(--success);}
+.bcl-status.loading{background:rgba(184,150,90,.12);color:var(--gold);}
+.bcl-body{padding:10px 12px;font-size:12px;line-height:1.6;color:var(--ink-soft);display:none;white-space:pre-wrap;word-break:break-word;}
+.bcl-item.open .bcl-body{display:block;}
+
+/* PROGRESS */
+.pw{background:var(--cream-dark);border-radius:4px;height:5px;overflow:hidden;margin-top:.4rem;}
+.pf{height:100%;background:var(--gold);border-radius:4px;transition:width .25s;width:0%;}
+.pt{font-size:11px;color:var(--ink-soft);margin-top:5px;text-align:center;}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,14,12,.5);z-index:300;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--white);border-radius:12px;padding:2rem;width:360px;max-width:90vw;display:flex;flex-direction:column;gap:1rem;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:300;}
+.modal-title em{font-style:italic;color:var(--gold);}
+.modal-btns{display:flex;gap:8px;margin-top:.25rem;}
+.modal-btns .btn{flex:1;}
+.modal-cancel{flex:1;height:42px;background:transparent;color:var(--ink-soft);border:.5px solid var(--border);border-radius:6px;font-family:'Instrument Sans',sans-serif;font-size:12px;cursor:pointer;}
+.modal-cancel:hover{border-color:var(--danger);color:var(--danger);}
+
+/* CANVAS */
+.canvas-area{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1.5rem;background:#E8E4DE;}
+.cwrap{position:relative;box-shadow:0 20px 56px rgba(0,0,0,.22);}
+canvas{display:block;max-width:min(490px,calc(100vw - 430px));max-height:calc(100vh - 180px);width:100%;height:auto;}
+.cempty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#F5F2EE;border:1.5px dashed rgba(184,150,90,.3);pointer-events:none;transition:opacity .3s;}
+.cempty.hide{opacity:0;}
+.cempty svg{width:40px;height:40px;color:rgba(184,150,90,.4);margin-bottom:.75rem;}
+.cempty p{font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;color:rgba(15,14,12,.3);}
+.cinfo{margin-top:.9rem;font-size:11px;color:rgba(15,14,12,.3);letter-spacing:.05em;text-transform:uppercase;}
+.cszbadge{margin-top:.3rem;font-size:11px;font-weight:500;color:rgba(15,14,12,.38);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--white);font-size:13px;padding:10px 20px;border-radius:20px;transition:transform .3s;pointer-events:none;white-space:nowrap;z-index:400;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+@media(max-width:860px){.app{grid-template-columns:1fr;}canvas{max-width:100%;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">Art<span>Post</span>Pro</a>
+  <div class="nav-right">
+    <button class="btn-ghost-sm" onclick="openProfileModal()">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M1 13c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Gallery profile
+    </button>
+    <span class="badge">Branding Tool</span>
+  </div>
+</nav>
+
+<div class="app">
+<div class="sidebar">
+  <div class="tabs">
+    <div class="tab on" onclick="swMode('single')">Single image</div>
+    <div class="tab" onclick="swMode('bulk')">Bulk — up to 31</div>
+  </div>
+
+  <!-- ======= SINGLE ======= -->
+  <div class="pane on" id="pane-single">
+
+    <div class="sec">
+      <div class="sec-lbl">Brand presets</div>
+      <div class="presets-bar" id="presets-bar"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Platform & size</div>
+      <div class="plat-grid" id="sg-plat">
+        <div class="plat on" data-w="1080" data-h="1080" onclick="setPlat(this,'s')"><div class="pi">📷</div><span class="pn">IG Square</span><span class="ps">1080×1080</span></div>
+        <div class="plat" data-w="1080" data-h="1350" onclick="setPlat(this,'s')"><div class="pi">📷</div><span class="pn">IG Portrait</span><span class="ps">1080×1350</span></div>
+        <div class="plat" data-w="1080" data-h="1920" onclick="setPlat(this,'s')"><div class="pi">📱</div><span class="pn">IG Story</span><span class="ps">1080×1920</span></div>
+        <div class="plat" data-w="1200" data-h="630" onclick="setPlat(this,'s')"><div class="pi">👥</div><span class="pn">FB Post</span><span class="ps">1200×630</span></div>
+        <div class="plat" data-w="1080" data-h="1080" onclick="setPlat(this,'s')"><div class="pi">👥</div><span class="pn">FB Square</span><span class="ps">1080×1080</span></div>
+        <div class="plat" data-w="1080" data-h="1920" onclick="setPlat(this,'s')"><div class="pi">🎵</div><span class="pn">TikTok</span><span class="ps">1080×1920</span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Artwork image</div>
+      <div class="upz" id="art-zone">
+        <input type="file" id="art-inp" accept="image/*">
+        <svg viewBox="0 0 28 28" fill="none"><rect x="2" y="2" width="24" height="24" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 20l6-7 5 5 5-6 10 8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        <div class="ut">Upload artwork</div><div class="us">JPG, PNG or WEBP</div>
+        <div class="uf" id="art-fn"></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Artwork information</div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">Title</label><input class="fi" type="text" id="s-title" placeholder="Untitled No. 7" oninput="render()"></div>
+        <div class="fg"><label class="fl">Artist</label><input class="fi" type="text" id="s-artist" placeholder="Bill Mack" oninput="render()"></div>
+        <div class="fg"><label class="fl">Size</label><input class="fi" type="text" id="s-size" placeholder='24" × 24"' oninput="render()"></div>
+        <div class="fg"><label class="fl">Edition</label><input class="fi" type="text" id="s-edition" placeholder="Ed. 1/50" oninput="render()"></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Gallery identity</div>
+      <div class="upz" id="logo-zone">
+        <input type="file" id="logo-inp" accept="image/*">
+        <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div class="ut">Upload gallery logo</div><div class="us">PNG with transparency recommended</div>
+        <div class="uf" id="logo-fn"></div>
+      </div>
+      <div class="fg"><label class="fl">Gallery name (if no logo)</label><input class="fi" type="text" id="s-gallery" placeholder="Bill Mack Gallery" oninput="render()"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Bar style</div>
+      <div class="fg"><label class="fl">Layout</label>
+        <select class="fsel" id="s-layout" onchange="render()">
+          <option value="bottom-bar">Bottom bar</option>
+          <option value="top-bar">Top bar</option>
+          <option value="full-overlay">Full overlay</option>
+          <option value="minimal">Logo / name only</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Bar color</label>
+        <div class="color-palette">
+          <div>
+            <div class="color-row-label">Classic</div>
+            <div class="crow">
+              <div class="csw on" style="background:#0F0E0C" data-c="#0F0E0C" title="Ink black" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#FFFFFF;border:1px solid #ddd" data-c="#FFFFFF" title="White" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#F5F0E8" data-c="#F5F0E8" title="Parchment" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#2C2C2A" data-c="#2C2C2A" title="Charcoal" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#4A4540" data-c="#4A4540" title="Warm grey" onclick="setC(this,'s-bar')"></div>
+            </div>
+          </div>
+          <div>
+            <div class="color-row-label">Gold & earth</div>
+            <div class="crow">
+              <div class="csw" style="background:#B8965A" data-c="#B8965A" title="Gallery gold" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#8B6914" data-c="#8B6914" title="Antique gold" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#C4A882" data-c="#C4A882" title="Sand" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#3D2B1F" data-c="#3D2B1F" title="Dark walnut" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#6B4423" data-c="#6B4423" title="Cognac" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#8B5E3C" data-c="#8B5E3C" title="Terracotta" onclick="setC(this,'s-bar')"></div>
+            </div>
+          </div>
+          <div>
+            <div class="color-row-label">Deep tones</div>
+            <div class="crow">
+              <div class="csw" style="background:#1A3A5C" data-c="#1A3A5C" title="Navy" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#0D2137" data-c="#0D2137" title="Midnight blue" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#1C3A2E" data-c="#1C3A2E" title="Forest green" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#2D1B3D" data-c="#2D1B3D" title="Deep plum" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#5C1A1A" data-c="#5C1A1A" title="Bordeaux" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#1A1A3A" data-c="#1A1A3A" title="Indigo" onclick="setC(this,'s-bar')"></div>
+            </div>
+          </div>
+          <div>
+            <div class="color-row-label">Muted pastels</div>
+            <div class="crow">
+              <div class="csw" style="background:#D4C5B0" data-c="#D4C5B0" title="Warm linen" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#BFC9C2" data-c="#BFC9C2" title="Sage mist" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#C9BFD4" data-c="#C9BFD4" title="Lavender grey" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#D4BFBF" data-c="#D4BFBF" title="Dusty rose" onclick="setC(this,'s-bar')"></div>
+              <div class="csw" style="background:#B8C4C8" data-c="#B8C4C8" title="Slate blue" onclick="setC(this,'s-bar')"></div>
+            </div>
+          </div>
+          <div class="crow" style="margin-top:2px;">
+            <div class="ccu" title="Custom color"><input type="color" value="#0F0E0C" oninput="S.barC=this.value;render()"></div>
+            <span style="font-size:11px;color:var(--ink-muted);">Custom</span>
+          </div>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Text color</label>
+        <div class="crow">
+          <div class="csw on" style="background:#FFFFFF;border:1px solid #ddd" data-c="#FFFFFF" title="White" onclick="setC(this,'s-txt')"></div>
+          <div class="csw" style="background:#0F0E0C" data-c="#0F0E0C" title="Black" onclick="setC(this,'s-txt')"></div>
+          <div class="csw" style="background:#B8965A" data-c="#B8965A" title="Gold" onclick="setC(this,'s-txt')"></div>
+          <div class="csw" style="background:#D4AF7A" data-c="#D4AF7A" title="Light gold" onclick="setC(this,'s-txt')"></div>
+          <div class="csw" style="background:#F5F0E8" data-c="#F5F0E8" title="Parchment" onclick="setC(this,'s-txt')"></div>
+          <div class="csw" style="background:#C4A882" data-c="#C4A882" title="Sand" onclick="setC(this,'s-txt')"></div>
+          <div class="ccu" title="Custom text color"><input type="color" value="#FFFFFF" oninput="S.txtC=this.value;render()"></div>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Bar opacity</label>
+        <div class="sr"><input type="range" min="50" max="100" value="93" oninput="S.barA=+this.value;document.getElementById('s-bov').textContent=this.value+'%';render()"><span class="sv" id="s-bov">93%</span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Logo</div>
+      <div class="fg"><label class="fl">Position</label>
+        <div class="posg">
+          <button class="pb" data-p="tl" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="1" y="1" width="4" height="4" rx="1"/></svg></button>
+          <button class="pb" data-p="tc" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="3" y="1" width="4" height="4" rx="1"/></svg></button>
+          <button class="pb" data-p="tr" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="5" y="1" width="4" height="4" rx="1"/></svg></button>
+          <button class="pb" data-p="ml" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="1" y="3" width="4" height="4" rx="1"/></svg></button>
+          <button class="pb" data-p="mc" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="3" y="3" width="4" height="4" rx="1"/></svg></button>
+          <button class="pb" data-p="mr" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="5" y="3" width="4" height="4" rx="1"/></svg></button>
+          <button class="pb on" data-p="bl" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="1" y="5" width="4" height="4" rx="1"/></svg></button>
+          <button class="pb" data-p="bc" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="3" y="5" width="4" height="4" rx="1"/></svg></button>
+          <button class="pb" data-p="br" onclick="setPos(this)"><svg viewBox="0 0 10 10" fill="currentColor"><rect x="5" y="5" width="4" height="4" rx="1"/></svg></button>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Logo size</label>
+        <div class="sr"><input type="range" min="8" max="42" value="22" oninput="S.logoSz=+this.value;document.getElementById('s-lsv').textContent=this.value+'%';render()"><span class="sv" id="s-lsv">22%</span></div>
+      </div>
+      <div class="tr"><span class="tl">ArtPostPro watermark</span><label class="tg"><input type="checkbox" id="s-wm" checked onchange="render()"><div class="tt"></div></label></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Caption generator</div>
+      <button class="btn-outline" id="gen-cap-btn" onclick="genCaption()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 7h7M2 10h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Generate Instagram caption
+      </button>
+      <div class="caption-box" id="caption-box" style="display:none">
+        <div class="cap-loading" id="cap-loading"><div class="spinner"></div> Writing caption...</div>
+        <div class="caption-text" id="caption-text"></div>
+        <div class="caption-actions" id="caption-actions" style="display:none">
+          <button class="cap-btn cap-copy" onclick="copyCaption()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="4" y="4" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M8 4V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2" stroke="currentColor" stroke-width="1.2"/></svg>
+            Copy
+          </button>
+          <button class="cap-btn cap-regen" onclick="genCaption()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6a4 4 0 1 1-1.17-2.83M10 2v3H7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Regenerate
+          </button>
+        </div>
+        <div class="cap-copied" id="cap-copied">Copied!</div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Export</div>
+      <div class="export-row">
+        <button class="btn" id="dl-jpg" onclick="dlSingle('jpg')" disabled>
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>JPG
+        </button>
+        <button class="btn" id="dl-png" onclick="dlSingle('png')" disabled style="background:var(--ink-soft)">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>PNG
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======= BULK ======= -->
+  <div class="pane" id="pane-bulk">
+
+    <div class="sec">
+      <div class="sec-lbl">Platform & size</div>
+      <div class="plat-grid" id="bk-plat">
+        <div class="plat on" data-w="1080" data-h="1080" onclick="setPlat(this,'b')"><div class="pi">📷</div><span class="pn">IG Square</span><span class="ps">1080×1080</span></div>
+        <div class="plat" data-w="1080" data-h="1350" onclick="setPlat(this,'b')"><div class="pi">📷</div><span class="pn">IG Portrait</span><span class="ps">1080×1350</span></div>
+        <div class="plat" data-w="1080" data-h="1920" onclick="setPlat(this,'b')"><div class="pi">📱</div><span class="pn">IG Story</span><span class="ps">1080×1920</span></div>
+        <div class="plat" data-w="1200" data-h="630" onclick="setPlat(this,'b')"><div class="pi">👥</div><span class="pn">FB Post</span><span class="ps">1200×630</span></div>
+        <div class="plat" data-w="1080" data-h="1080" onclick="setPlat(this,'b')"><div class="pi">👥</div><span class="pn">FB Square</span><span class="ps">1080×1080</span></div>
+        <div class="plat" data-w="1080" data-h="1920" onclick="setPlat(this,'b')"><div class="pi">🎵</div><span class="pn">TikTok</span><span class="ps">1080×1920</span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Artwork images & information <span style="font-weight:300;text-transform:none;letter-spacing:0;color:#BBB">— up to 31</span></div>
+      <div class="bulk-img-list" id="bk-list"></div>
+      <div class="bulk-add-btn" id="bk-add-btn">
+        <input type="file" id="bk-inp" accept="image/*" multiple onchange="handleBulk(this)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add artworks
+      </div>
+      <div id="bk-cnt" style="font-size:11px;color:var(--ink-muted);display:none;"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Gallery identity</div>
+      <div class="upz" id="bk-logo-zone">
+        <input type="file" id="bk-logo-inp" accept="image/*" onchange="handleBulkLogo(this)">
+        <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div class="ut">Upload gallery logo</div><div class="us">Applied to all images</div>
+        <div class="uf" id="bk-logo-fn"></div>
+      </div>
+      <div class="fg"><label class="fl">Gallery name (if no logo)</label><input class="fi" type="text" id="b-gallery" placeholder="Bill Mack Gallery"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Style</div>
+      <div class="fg"><label class="fl">Layout</label>
+        <select class="fsel" id="b-layout">
+          <option value="bottom-bar">Bottom bar</option>
+          <option value="top-bar">Top bar</option>
+          <option value="full-overlay">Full overlay</option>
+          <option value="minimal">Logo / name only</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Bar color</label>
+        <div class="color-palette">
+          <div>
+            <div class="color-row-label">Classic</div>
+            <div class="crow">
+              <div class="csw on" style="background:#0F0E0C" data-c="#0F0E0C" title="Ink black" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#FFFFFF;border:1px solid #ddd" data-c="#FFFFFF" title="White" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#F5F0E8" data-c="#F5F0E8" title="Parchment" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#2C2C2A" data-c="#2C2C2A" title="Charcoal" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#4A4540" data-c="#4A4540" title="Warm grey" onclick="setC(this,'b-bar')"></div>
+            </div>
+          </div>
+          <div>
+            <div class="color-row-label">Gold & earth</div>
+            <div class="crow">
+              <div class="csw" style="background:#B8965A" data-c="#B8965A" title="Gallery gold" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#8B6914" data-c="#8B6914" title="Antique gold" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#C4A882" data-c="#C4A882" title="Sand" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#3D2B1F" data-c="#3D2B1F" title="Dark walnut" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#6B4423" data-c="#6B4423" title="Cognac" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#8B5E3C" data-c="#8B5E3C" title="Terracotta" onclick="setC(this,'b-bar')"></div>
+            </div>
+          </div>
+          <div>
+            <div class="color-row-label">Deep tones</div>
+            <div class="crow">
+              <div class="csw" style="background:#1A3A5C" data-c="#1A3A5C" title="Navy" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#0D2137" data-c="#0D2137" title="Midnight blue" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#1C3A2E" data-c="#1C3A2E" title="Forest green" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#2D1B3D" data-c="#2D1B3D" title="Deep plum" onclick="setC(this,'b-bar')"></div>
+              <div class="csw" style="background:#5C1A1A" data-c="#5C1A1A" title="Bordeaux" onclick="setC(this,'b-bar')"></div>
+            </div>
+          </div>
+          <div class="crow" style="margin-top:2px;">
+            <div class="ccu"><input type="color" value="#0F0E0C" oninput="B.barC=this.value"></div>
+            <span style="font-size:11px;color:var(--ink-muted);">Custom</span>
+          </div>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Text color</label>
+        <div class="crow">
+          <div class="csw on" style="background:#FFFFFF;border:1px solid #ddd" data-c="#FFFFFF" title="White" onclick="setC(this,'b-txt')"></div>
+          <div class="csw" style="background:#0F0E0C" data-c="#0F0E0C" title="Black" onclick="setC(this,'b-txt')"></div>
+          <div class="csw" style="background:#B8965A" data-c="#B8965A" title="Gold" onclick="setC(this,'b-txt')"></div>
+          <div class="csw" style="background:#D4AF7A" data-c="#D4AF7A" title="Light gold" onclick="setC(this,'b-txt')"></div>
+          <div class="csw" style="background:#F5F0E8" data-c="#F5F0E8" title="Parchment" onclick="setC(this,'b-txt')"></div>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Logo size</label>
+        <div class="sr"><input type="range" min="8" max="42" value="22" oninput="B.logoSz=+this.value;document.getElementById('b-lsv').textContent=this.value+'%'"><span class="sv" id="b-lsv">22%</span></div>
+      </div>
+      <div class="tr"><span class="tl">ArtPostPro watermark</span><label class="tg"><input type="checkbox" id="b-wm" checked><div class="tt"></div></label></div>
+    </div>
+
+    <!-- BULK CAPTION GENERATOR -->
+    <div class="sec">
+      <div class="sec-lbl">Caption generator</div>
+      <p style="font-size:12px;color:var(--ink-muted);line-height:1.5;">Generates one caption per artwork using each image's information. Downloads as a .txt file.</p>
+      <button class="btn-outline" id="gen-bulk-cap-btn" onclick="genBulkCaptions()" disabled>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 7h7M2 10h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Generate all captions
+      </button>
+      <div class="pw" id="cap-prog-wrap" style="display:none"><div class="pf" id="cap-prog-fill"></div></div>
+      <div class="pt" id="cap-prog-text" style="display:none"></div>
+      <div class="bulk-cap-list" id="bulk-cap-list"></div>
+      <button class="btn" id="dl-captions" onclick="downloadCaptions()" disabled style="display:none">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Download captions (.txt)
+      </button>
+    </div>
+
+    <div class="sec">
+      <div class="sec-lbl">Export images</div>
+      <div class="pw" id="b-pw" style="display:none"><div class="pf" id="b-pf"></div></div>
+      <div class="pt" id="b-pt" style="display:none"></div>
+      <div class="export-row">
+        <button class="btn" id="dl-b-jpg" onclick="dlBulk('jpg')" disabled>
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>ZIP (JPG)
+        </button>
+        <button class="btn" id="dl-b-png" onclick="dlBulk('png')" disabled style="background:var(--ink-soft)">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>ZIP (PNG)
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CANVAS -->
+<div class="canvas-area">
+  <div class="cwrap">
+    <canvas id="cv" width="1080" height="1080"></canvas>
+    <div class="cempty" id="cempty">
+      <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 34l10-10 8 8 8-10 14 12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
+      <p>Upload an artwork to begin</p>
+    </div>
+  </div>
+  <p class="cinfo">Live preview</p>
+  <p class="cszbadge" id="szbadge">1080 × 1080 px</p>
+</div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-title">Gallery <em>profile</em></div>
+    <p style="font-size:12px;color:var(--ink-muted);line-height:1.5;">Saved automatically — loads next time you open the tool.</p>
+    <div class="fg"><label class="fl">Gallery name</label><input class="fi" type="text" id="prof-name" placeholder="Bill Mack Gallery"></div>
+    <div class="fg"><label class="fl">Default bar color</label>
+      <div class="crow">
+        <div class="csw on" style="background:#0F0E0C" data-c="#0F0E0C" onclick="setC(this,'prof-bar')"></div>
+        <div class="csw" style="background:#FFFFFF;border:1px solid #ddd" data-c="#FFFFFF" onclick="setC(this,'prof-bar')"></div>
+        <div class="csw" style="background:#B8965A" data-c="#B8965A" onclick="setC(this,'prof-bar')"></div>
+        <div class="csw" style="background:#1A3A5C" data-c="#1A3A5C" onclick="setC(this,'prof-bar')"></div>
+        <div class="ccu"><input type="color" id="prof-color-inp" value="#0F0E0C" oninput="PROF.barC=this.value"></div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Gallery logo</label>
+      <div class="upz" id="prof-logo-zone">
+        <input type="file" id="prof-logo-inp" accept="image/*" onchange="handleProfileLogo(this)">
+        <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div class="ut">Upload logo</div><div class="us">Saved to your profile</div>
+        <div class="uf" id="prof-logo-fn"></div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeProfileModal()">Cancel</button>
+      <button class="btn" onclick="saveProfile()" style="flex:1">Save profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRESET MODAL -->
+<div class="modal-overlay" id="preset-modal">
+  <div class="modal">
+    <div class="modal-title">Name this <em>preset</em></div>
+    <div class="fg"><label class="fl">Preset name</label><input class="fi" type="text" id="preset-name-inp" placeholder="e.g. Las Vegas Dark, Laguna Light"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closePresetModal()">Cancel</button>
+      <button class="btn" onclick="confirmSavePreset()" style="flex:1">Save preset</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+var S={art:null,logo:null,barC:'#0F0E0C',txtC:'#FFFFFF',pos:'bl',logoSz:22,barA:93,W:1080,H:1080};
+var B={imgs:[],logo:null,barC:'#0F0E0C',txtC:'#FFFFFF',logoSz:22,W:1080,H:1080};
+var PROF={name:'',barC:'#0F0E0C',logo:null,logoDataUrl:''};
+var PRESETS=[];
+var bulkCaptions=[];
+var mode='single';
+
+// ---- INIT ----
+(function(){
+  try{
+    var p=localStorage.getItem('app_profile');
+    if(p){
+      PROF=Object.assign(PROF,JSON.parse(p));
+      if(PROF.logoDataUrl){var i=new Image();i.onload=function(){PROF.logo=i;S.logo=i;B.logo=i;applyProfileToUI();render();};i.src=PROF.logoDataUrl;}
+      else applyProfileToUI();
+    }
+    var pr=localStorage.getItem('app_presets');
+    if(pr)PRESETS=JSON.parse(pr);
+    renderPresets();
+  }catch(e){}
+})();
+
+function applyProfileToUI(){
+  if(PROF.name){document.getElementById('s-gallery').value=PROF.name;document.getElementById('b-gallery').value=PROF.name;document.getElementById('prof-name').value=PROF.name;}
+  if(PROF.barC){S.barC=PROF.barC;B.barC=PROF.barC;}
+  if(PROF.logo){
+    document.getElementById('logo-zone').classList.add('ok');document.getElementById('logo-fn').textContent=PROF.name+' logo';
+    document.getElementById('bk-logo-zone').classList.add('ok');document.getElementById('bk-logo-fn').textContent=PROF.name+' logo';
+  }
+}
+
+// ---- MODE ----
+function swMode(m){
+  mode=m;
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('on',(i===0&&m==='single')||(i===1&&m==='bulk'));});
+  document.getElementById('pane-single').classList.toggle('on',m==='single');
+  document.getElementById('pane-bulk').classList.toggle('on',m==='bulk');
+  if(m==='bulk'&&B.imgs.length>0)renderBP(0);
+  else if(m==='single'&&S.art)render();
+}
+
+// ---- PLATFORM ----
+function setPlat(el,w){
+  el.closest('.plat-grid').querySelectorAll('.plat').forEach(function(p){p.classList.remove('on');});
+  el.classList.add('on');
+  var pw=+el.dataset.w,ph=+el.dataset.h;
+  if(w==='s'){S.W=pw;S.H=ph;cv.width=pw;cv.height=ph;render();}
+  else{B.W=pw;B.H=ph;cv.width=pw;cv.height=ph;if(B.imgs.length>0)renderBP(0);}
+  document.getElementById('szbadge').textContent=pw+' × '+ph+' px';
+}
+
+// ---- COLOR + POS ----
+function setC(el,grp){
+  el.closest('.crow').querySelectorAll('.csw').forEach(function(s){s.classList.remove('on');});
+  el.classList.add('on');
+  var c=el.dataset.c;
+  if(grp==='s-bar'){S.barC=c;render();}
+  else if(grp==='s-txt'){S.txtC=c;render();}
+  else if(grp==='b-bar')B.barC=c;
+  else if(grp==='b-txt')B.txtC=c;
+  else if(grp==='prof-bar')PROF.barC=c;
+}
+function setPos(el){
+  document.querySelectorAll('.pb').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');S.pos=el.dataset.p;render();
+}
+
+// ---- LOAD IMG ----
+function loadImg(file,cb){
+  var r=new FileReader();
+  r.onload=function(e){var i=new Image();i.onload=function(){cb(i,file.name,e.target.result);};i.src=e.target.result;};
+  r.readAsDataURL(file);
+}
+
+// ---- SINGLE ----
+document.getElementById('art-inp').addEventListener('change',function(e){
+  if(!e.target.files[0])return;
+  loadImg(e.target.files[0],function(img,name){
+    S.art=img;
+    document.getElementById('art-zone').classList.add('ok');
+    document.getElementById('art-fn').textContent=name;
+    document.getElementById('cempty').classList.add('hide');
+    document.getElementById('dl-jpg').disabled=false;
+    document.getElementById('dl-png').disabled=false;
+    render();
+  });
+});
+document.getElementById('logo-inp').addEventListener('change',function(e){
+  if(!e.target.files[0])return;
+  loadImg(e.target.files[0],function(img,name){
+    S.logo=img;
+    document.getElementById('logo-zone').classList.add('ok');
+    document.getElementById('logo-fn').textContent=name;
+    render();
+  });
+});
+
+// ---- BULK ----
+function handleBulk(inp){
+  var files=Array.from(inp.files).slice(0,31-B.imgs.length);
+  if(!files.length)return;
+  var done=0;
+  files.forEach(function(f){
+    loadImg(f,function(img,name,dataUrl){
+      var cleanName=name.replace(/\.[^.]+$/,'');
+      B.imgs.push({img:img,name:cleanName,fn:f.name,title:cleanName,artist:'',size:'',edition:''});
+      if(++done===files.length){
+        buildBulkList();
+        document.getElementById('cempty').classList.add('hide');
+        document.getElementById('dl-b-jpg').disabled=false;
+        document.getElementById('dl-b-png').disabled=false;
+        document.getElementById('gen-bulk-cap-btn').disabled=false;
+        renderBP(0);
+      }
+    });
+  });
+  inp.value='';
+}
+function handleBulkLogo(inp){
+  if(!inp.files[0])return;
+  loadImg(inp.files[0],function(img,name){
+    B.logo=img;
+    document.getElementById('bk-logo-zone').classList.add('ok');
+    document.getElementById('bk-logo-fn').textContent=name;
+    if(B.imgs.length>0)renderBP(0);
+  });
+}
+
+function buildBulkList(){
+  var list=document.getElementById('bk-list');list.innerHTML='';
+  B.imgs.forEach(function(item,i){
+    var row=document.createElement('div');row.className='bil'+(i===0?' act':'');
+    row.onclick=function(e){
+      if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON')return;
+      document.querySelectorAll('.bil').forEach(function(r){r.classList.remove('act');});
+      row.classList.add('act');renderBP(i);
+    };
+
+    // Thumbnail
+    var tc=document.createElement('canvas');tc.width=52;tc.height=52;
+    var tc2=tc.getContext('2d');var sc=Math.max(52/item.img.width,52/item.img.height);
+    tc2.drawImage(item.img,(52-item.img.width*sc)/2,(52-item.img.height*sc)/2,item.img.width*sc,item.img.height*sc);
+    var ti=document.createElement('img');ti.src=tc.toDataURL();
+    var thumb=document.createElement('div');thumb.className='bil-thumb';thumb.appendChild(ti);
+
+    // Fields
+    var fields=document.createElement('div');fields.className='bil-fields';
+
+    var titleFi=document.createElement('input');titleFi.className='bil-fi';titleFi.placeholder='Title';titleFi.value=item.title||'';
+    titleFi.oninput=function(){item.title=this.value;if(row.classList.contains('act'))renderBP(i);};
+
+    var artistFi=document.createElement('input');artistFi.className='bil-fi';artistFi.placeholder='Artist';artistFi.value=item.artist||'';
+    artistFi.oninput=function(){item.artist=this.value;if(row.classList.contains('act'))renderBP(i);};
+
+    var row2=document.createElement('div');row2.className='bil-row2';
+    var sizeFi=document.createElement('input');sizeFi.className='bil-fi';sizeFi.placeholder='Size';sizeFi.value=item.size||'';
+    sizeFi.oninput=function(){item.size=this.value;if(row.classList.contains('act'))renderBP(i);};
+    var edFi=document.createElement('input');edFi.className='bil-fi';edFi.placeholder='Edition';edFi.value=item.edition||'';
+    edFi.oninput=function(){item.edition=this.value;if(row.classList.contains('act'))renderBP(i);};
+    row2.appendChild(sizeFi);row2.appendChild(edFi);
+
+    fields.appendChild(titleFi);fields.appendChild(artistFi);fields.appendChild(row2);
+
+    // Remove btn
+    var rm=document.createElement('button');rm.className='bil-rm';rm.innerHTML='✕';rm.title='Remove';
+    rm.onclick=function(e){e.stopPropagation();B.imgs.splice(i,1);buildBulkList();
+      if(B.imgs.length===0){document.getElementById('dl-b-jpg').disabled=true;document.getElementById('dl-b-png').disabled=true;document.getElementById('gen-bulk-cap-btn').disabled=true;document.getElementById('cempty').classList.remove('hide');}
+      else renderBP(0);};
+
+    row.appendChild(thumb);row.appendChild(fields);row.appendChild(rm);
+    list.appendChild(row);
+  });
+
+  // Add more btn
+  if(B.imgs.length<31){
+    document.getElementById('bk-add-btn').style.display='flex';
+  } else {
+    document.getElementById('bk-add-btn').style.display='none';
+  }
+
+  var c=document.getElementById('bk-cnt');c.style.display='block';
+  c.textContent=B.imgs.length+' of 31 images';
+}
+
+// ---- PROFILE ----
+function openProfileModal(){document.getElementById('profile-modal').classList.add('show');document.getElementById('prof-name').value=PROF.name||'';}
+function closeProfileModal(){document.getElementById('profile-modal').classList.remove('show');}
+function handleProfileLogo(inp){
+  if(!inp.files[0])return;
+  loadImg(inp.files[0],function(img,name,dataUrl){
+    PROF.logo=img;PROF.logoDataUrl=dataUrl;
+    document.getElementById('prof-logo-zone').classList.add('ok');
+    document.getElementById('prof-logo-fn').textContent=name;
+  });
+}
+function saveProfile(){
+  PROF.name=document.getElementById('prof-name').value.trim();
+  if(PROF.name){document.getElementById('s-gallery').value=PROF.name;document.getElementById('b-gallery').value=PROF.name;}
+  if(PROF.logo){S.logo=PROF.logo;B.logo=PROF.logo;applyProfileToUI();}
+  S.barC=PROF.barC;B.barC=PROF.barC;
+  try{localStorage.setItem('app_profile',JSON.stringify({name:PROF.name,barC:PROF.barC,logoDataUrl:PROF.logoDataUrl||''}));}catch(e){}
+  closeProfileModal();render();toast('Profile saved');
+}
+
+// ---- PRESETS ----
+function renderPresets(){
+  var bar=document.getElementById('presets-bar');bar.innerHTML='';
+  PRESETS.forEach(function(pr,i){
+    var chip=document.createElement('button');chip.className='preset-chip';chip.textContent=pr.name;
+    chip.onclick=function(){applyPreset(i);};bar.appendChild(chip);
+  });
+  var sb=document.createElement('button');sb.className='preset-save-btn';sb.textContent='+ Save as preset';
+  sb.onclick=savePreset;bar.appendChild(sb);
+}
+function savePreset(){document.getElementById('preset-modal').classList.add('show');document.getElementById('preset-name-inp').value='';setTimeout(function(){document.getElementById('preset-name-inp').focus();},100);}
+function closePresetModal(){document.getElementById('preset-modal').classList.remove('show');}
+function confirmSavePreset(){
+  var name=document.getElementById('preset-name-inp').value.trim();if(!name)return;
+  PRESETS=PRESETS.filter(function(p){return p.name!==name;});
+  PRESETS.push({name:name,barC:S.barC,txtC:S.txtC,layout:document.getElementById('s-layout').value,pos:S.pos,logoSz:S.logoSz,barA:S.barA});
+  if(PRESETS.length>6)PRESETS=PRESETS.slice(-6);
+  try{localStorage.setItem('app_presets',JSON.stringify(PRESETS));}catch(e){}
+  renderPresets();closePresetModal();toast('Preset "'+name+'" saved');
+}
+function applyPreset(i){
+  var pr=PRESETS[i];if(!pr)return;
+  S.barC=pr.barC;S.txtC=pr.txtC;S.pos=pr.pos;S.logoSz=pr.logoSz;S.barA=pr.barA;
+  document.getElementById('s-layout').value=pr.layout;
+  document.getElementById('s-bov').textContent=pr.barA+'%';
+  document.querySelectorAll('.preset-chip').forEach(function(c,j){c.classList.toggle('on',j===i);});
+  render();toast('Preset "'+pr.name+'" applied');
+}
+
+// ---- SINGLE CAPTION ----
+async function genCaption(){
+  var box=document.getElementById('caption-box'),loading=document.getElementById('cap-loading');
+  var capText=document.getElementById('caption-text'),actions=document.getElementById('caption-actions');
+  box.style.display='block';loading.style.display='flex';capText.textContent='';actions.style.display='none';
+  var prompt=buildCaptionPrompt(
+    document.getElementById('s-title').value,
+    document.getElementById('s-artist').value,
+    document.getElementById('s-size').value,
+    document.getElementById('s-edition').value,
+    document.getElementById('s-gallery').value||PROF.name||'our gallery'
+  );
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})
+    });
+    var data=await resp.json();
+    var text=data.content&&data.content[0]?data.content[0].text:'Could not generate caption.';
+    loading.style.display='none';capText.textContent=text;actions.style.display='flex';
+  }catch(e){loading.style.display='none';capText.textContent='Generation failed. Try again.';actions.style.display='flex';}
+}
+function copyCaption(){
+  navigator.clipboard.writeText(document.getElementById('caption-text').textContent).then(function(){
+    document.getElementById('cap-copied').style.display='block';
+    setTimeout(function(){document.getElementById('cap-copied').style.display='none';},2000);
+  });
+}
+
+// ---- BULK CAPTIONS ----
+function buildCaptionPrompt(title,artist,size,edition,gallery){
+  return'Write an Instagram caption for a fine art gallery post. Be evocative, sophisticated, and gallery-appropriate. Do not use phrases like "Excited to share" or "Check this out".\n\n'
+    +(title?'Title: '+title+'\n':'')
+    +(artist?'Artist: '+artist+'\n':'')
+    +(size?'Size: '+size+'\n':'')
+    +(edition?'Edition: '+edition+'\n':'')
+    +'Gallery: '+gallery+'\n\nWrite only the caption. Keep under 150 words. End with 5-8 relevant hashtags.';
+}
+
+async function genBulkCaptions(){
+  if(!B.imgs.length)return;
+  var gallery=document.getElementById('b-gallery').value||PROF.name||'our gallery';
+  bulkCaptions=[];
+  var btn=document.getElementById('gen-bulk-cap-btn');btn.disabled=true;
+  var pw=document.getElementById('cap-prog-wrap'),pf=document.getElementById('cap-prog-fill'),pt=document.getElementById('cap-prog-text');
+  pw.style.display='block';pt.style.display='block';
+
+  // Build accordion items
+  var list=document.getElementById('bulk-cap-list');list.innerHTML='';
+  B.imgs.forEach(function(item,i){
+    var el=document.createElement('div');el.className='bcl-item';el.id='bcl-'+i;
+    el.innerHTML='<div class="bcl-header" onclick="this.parentElement.classList.toggle(\'open\')">'
+      +'<span class="bcl-title">'+(item.title||'Image '+(i+1))+'</span>'
+      +'<span class="bcl-status pending" id="bcl-status-'+i+'">Pending</span>'
+      +'</div><div class="bcl-body" id="bcl-body-'+i+'"></div>';
+    list.appendChild(el);
+    bulkCaptions.push('');
+  });
+
+  for(var i=0;i<B.imgs.length;i++){
+    var st=document.getElementById('bcl-status-'+i);
+    st.textContent='Writing...';st.className='bcl-status loading';
+    pf.style.width=Math.round((i/B.imgs.length)*100)+'%';
+    pt.textContent='Generating caption '+(i+1)+' of '+B.imgs.length+'...';
+    var item=B.imgs[i];
+    var prompt=buildCaptionPrompt(item.title,item.artist,item.size,item.edition,gallery);
+    try{
+      var resp=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})
+      });
+      var data=await resp.json();
+      var text=data.content&&data.content[0]?data.content[0].text:'Could not generate.';
+      bulkCaptions[i]=text;
+      document.getElementById('bcl-body-'+i).textContent=text;
+      st.textContent='Done';st.className='bcl-status done';
+      document.getElementById('bcl-'+i).classList.add('open');
+    }catch(e){
+      bulkCaptions[i]='Error generating caption.';
+      document.getElementById('bcl-body-'+i).textContent='Error.';
+      st.textContent='Error';st.className='bcl-status pending';
+    }
+    await new Promise(function(r){setTimeout(r,300);});
+  }
+
+  pf.style.width='100%';pt.textContent='All captions ready!';
+  btn.disabled=false;
+  var dlBtn=document.getElementById('dl-captions');dlBtn.style.display='flex';dlBtn.disabled=false;
+  setTimeout(function(){pw.style.display='none';},3000);
+}
+
+function downloadCaptions(){
+  var gallery=document.getElementById('b-gallery').value||PROF.name||'Gallery';
+  var lines=['ArtPostPro — Instagram Captions','Generated for: '+gallery,'Date: '+new Date().toLocaleDateString(),'','='.repeat(50),''];
+  B.imgs.forEach(function(item,i){
+    lines.push('IMAGE '+(i+1)+': '+(item.title||'Untitled'));
+    if(item.artist)lines.push('Artist: '+item.artist);
+    if(item.size)lines.push('Size: '+item.size);
+    if(item.edition)lines.push('Edition: '+item.edition);
+    lines.push('');
+    lines.push('CAPTION:');
+    lines.push(bulkCaptions[i]||'(not generated)');
+    lines.push('');lines.push('-'.repeat(50));lines.push('');
+  });
+  var blob=new Blob([lines.join('\n')],{type:'text/plain'});
+  var a=document.createElement('a');
+  a.download=gallery.toLowerCase().replace(/\s+/g,'-')+'-captions.txt';
+  a.href=URL.createObjectURL(blob);a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Captions downloaded as .txt');
+}
+
+// ---- RENDER ENGINE ----
+function h2r(hex,a){var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')';}
+
+function drawBranded(c,art,logo,o){
+  var W=o.W,H=o.H;
+  c.clearRect(0,0,W,H);
+  var sc=Math.max(W/art.width,H/art.height);
+  c.drawImage(art,(W-art.width*sc)/2,(H-art.height*sc)/2,art.width*sc,art.height*sc);
+  var layout=o.layout,alpha=o.barA/100;
+  var hasInfo=!!(o.title||o.artist||o.size||o.edition);
+  var barH=0,barY=0;
+  if(layout!=='minimal'){
+    barH=hasInfo?Math.round(H*.22):Math.round(H*.13);
+    if(layout==='full-overlay'){barH=Math.round(H*.32);barY=H-barH;}
+    else if(layout==='top-bar'){barY=0;}
+    else{barY=H-barH;}
+    c.fillStyle=h2r(o.barC,alpha);c.fillRect(0,barY,W,barH);
+    if(hasInfo){
+      c.fillStyle=o.txtC;
+      var pad=Math.round(W*.052);
+      var logoW=logo?Math.round(W*(o.logoSz/100))+Math.round(pad*.8):0;
+      var textX=pad+logoW;
+      var midY=barY+barH/2;
+      var titleSz=Math.round(H*.044),subSz=Math.round(H*.022),labelSz=Math.round(H*.015);
+      var lineH=Math.round(barH*.3);
+      var hasRight=!!(o.size||o.edition);
+      if(o.title){
+        c.font='italic 300 '+titleSz+'px "Cormorant Garamond",Georgia,serif';
+        var maxW=(hasRight?Math.round(W*.48):W-textX-pad);
+        var ts=o.title;while(c.measureText(ts).width>maxW&&ts.length>3)ts=ts.slice(0,-2)+'…';
+        c.fillText(ts,textX,midY+(o.artist?-lineH*.4:0));
+      }
+      if(o.artist){
+        c.font='400 '+subSz+'px "Instrument Sans",sans-serif';c.globalAlpha=.65;
+        c.fillText(o.artist,textX,midY+(o.title?lineH*.55:0));c.globalAlpha=1;
+      }
+      if(hasRight){
+        var rx=Math.round(W*.54),hasBoth=o.size&&o.edition,topY=hasBoth?midY-lineH*.4:midY;
+        if(o.size){
+          c.globalAlpha=.4;c.font='500 '+labelSz+'px "Instrument Sans",sans-serif';c.fillText('SIZE',rx,topY-Math.round(labelSz*.5));
+          c.globalAlpha=.85;c.font='400 '+subSz+'px "Instrument Sans",sans-serif';c.fillText(o.size,rx,topY+Math.round(subSz*.9));c.globalAlpha=1;
+        }
+        if(o.edition){
+          var eY=hasBoth?midY+lineH*.35:midY;
+          c.globalAlpha=.4;c.font='500 '+labelSz+'px "Instrument Sans",sans-serif';c.fillText('EDITION',rx,eY-Math.round(labelSz*.5));
+          c.globalAlpha=.85;c.font='400 '+subSz+'px "Instrument Sans",sans-serif';c.fillText(o.edition,rx,eY+Math.round(subSz*.9));c.globalAlpha=1;
+        }
+      }
+      if(!logo&&o.galleryName){
+        c.globalAlpha=.45;c.font='500 '+Math.round(H*.016)+'px "Instrument Sans",sans-serif';
+        c.fillText(o.galleryName.toUpperCase(),textX,barY+barH-Math.round(barH*.14));c.globalAlpha=1;
+      }
+    }
+  }
+  if(logo){
+    var lmw=W*(o.logoSz/100),refH=layout==='minimal'?Math.round(H*.12):barH*.7;
+    var lsc=Math.min(lmw/logo.width,refH/logo.height);
+    var lw=logo.width*lsc,lh=logo.height*lsc;
+    var lpad=Math.round(W*.042),lx,ly;
+    if(layout!=='minimal')ly=barY+(barH-lh)/2;
+    else{var p=o.pos;ly=p[0]==='t'?lpad:p[0]==='b'?H-lh-lpad:(H-lh)/2;}
+    var p=o.pos;lx=p[1]==='l'?lpad:p[1]==='r'?W-lw-lpad:(W-lw)/2;
+    c.drawImage(logo,lx,ly,lw,lh);
+  }
+  if(layout==='minimal'&&!logo&&o.galleryName){
+    c.font='500 '+Math.round(W*.025)+'px "Instrument Sans",sans-serif';
+    c.fillStyle=o.txtC;c.globalAlpha=.8;c.textAlign='center';
+    c.fillText(o.galleryName.toUpperCase(),W/2,H-Math.round(H*.04));
+    c.textAlign='left';c.globalAlpha=1;
+  }
+  if(o.wm){
+    c.font='300 '+Math.round(W*.013)+'px "Instrument Sans",sans-serif';
+    c.fillStyle='rgba(255,255,255,.2)';c.textAlign='right';
+    c.fillText('artpostpro.app',W-Math.round(W*.015),H-Math.round(H*.015));
+    c.textAlign='left';
+  }
+}
+
+function getSO(){
+  return{W:S.W,H:S.H,barC:S.barC,txtC:S.txtC,barA:S.barA,
+    layout:document.getElementById('s-layout').value,pos:S.pos,logoSz:S.logoSz,
+    title:document.getElementById('s-title').value,artist:document.getElementById('s-artist').value,
+    size:document.getElementById('s-size').value,edition:document.getElementById('s-edition').value,
+    galleryName:document.getElementById('s-gallery').value,wm:document.getElementById('s-wm').checked};
+}
+
+function render(){if(!S.art)return;cv.width=S.W;cv.height=S.H;drawBranded(ctx,S.art,S.logo,getSO());}
+
+function renderBP(idx){
+  if(!B.imgs[idx])return;
+  var item=B.imgs[idx];
+  cv.width=B.W;cv.height=B.H;
+  drawBranded(ctx,item.img,B.logo,{
+    W:B.W,H:B.H,barC:B.barC,txtC:B.txtC,barA:93,
+    layout:document.getElementById('b-layout').value,pos:'bl',logoSz:B.logoSz,
+    title:item.title,artist:item.artist,size:item.size,edition:item.edition,
+    galleryName:document.getElementById('b-gallery').value,wm:document.getElementById('b-wm').checked
+  });
+}
+
+// ---- DOWNLOAD ----
+function dlSingle(fmt){
+  if(!S.art)return;
+  var a=document.createElement('a');
+  var t=(document.getElementById('s-title').value||'artwork').toLowerCase().replace(/\s+/g,'-');
+  a.download=t+'-'+S.W+'x'+S.H+'.'+(fmt==='png'?'png':'jpg');
+  a.href=cv.toDataURL(fmt==='png'?'image/png':'image/jpeg',fmt==='png'?1:.95);a.click();
+}
+
+async function dlBulk(fmt){
+  if(!B.imgs.length)return;
+  var b1=document.getElementById('dl-b-jpg'),b2=document.getElementById('dl-b-png');
+  b1.disabled=true;b2.disabled=true;
+  var pw=document.getElementById('b-pw'),pf=document.getElementById('b-pf'),pt=document.getElementById('b-pt');
+  pw.style.display='block';pt.style.display='block';
+  var zip=new JSZip();
+  var oc=document.createElement('canvas');var octx=oc.getContext('2d');
+  var layout=document.getElementById('b-layout').value;
+  var gallery=document.getElementById('b-gallery').value;
+  var wm=document.getElementById('b-wm').checked;
+  for(var i=0;i<B.imgs.length;i++){
+    oc.width=B.W;oc.height=B.H;
+    var item=B.imgs[i];
+    drawBranded(octx,item.img,B.logo,{
+      W:B.W,H:B.H,barC:B.barC,txtC:B.txtC,barA:93,
+      layout:layout,pos:'bl',logoSz:B.logoSz,
+      title:item.title,artist:item.artist,size:item.size,edition:item.edition,
+      galleryName:gallery,wm:wm
+    });
+    var mime=fmt==='png'?'image/png':'image/jpeg';
+    zip.file(item.fn.replace(/\.[^.]+$/,'')+'-branded.'+(fmt==='png'?'png':'jpg'),oc.toDataURL(mime,fmt==='png'?1:.95).split(',')[1],{base64:true});
+    pf.style.width=Math.round(((i+1)/B.imgs.length)*100)+'%';
+    pt.textContent='Processing '+(i+1)+' of '+B.imgs.length+'...';
+    await new Promise(function(r){setTimeout(r,8);});
+  }
+  pt.textContent='Creating ZIP...';
+  var blob=await zip.generateAsync({type:'blob'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.download='artpostpro-branded-'+B.W+'x'+B.H+'-'+fmt+'.zip';
+  a.href=url;a.click();URL.revokeObjectURL(url);
+  b1.disabled=false;b2.disabled=false;
+  pt.textContent='Done — '+B.imgs.length+' images ready.';
+  setTimeout(function(){pw.style.display='none';},4000);
+}
+
+// ---- TOAST ----
+function toast(msg){
+  var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+// ---- MODAL CLOSE ON OVERLAY ----
+document.getElementById('profile-modal').addEventListener('click',function(e){if(e.target===this)closeProfileModal();});
+document.getElementById('preset-modal').addEventListener('click',function(e){if(e.target===this)closePresetModal();});
+document.getElementById('preset-name-inp').addEventListener('keydown',function(e){if(e.key==='Enter')confirmSavePreset();});
+</script>
+</body>
+</html>
